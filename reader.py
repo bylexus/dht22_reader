@@ -5,6 +5,7 @@
 #
 # This script needs:
 # - python-mysqldb
+# - python-rrdtool
 # - The Adafruit Python DHT library: https://github.com/adafruit/Adafruit_Python_DHT
 # - A configuration file (see config.ini.default)
 #
@@ -24,29 +25,75 @@ import time
 import MySQLdb
 import random
 from warnings import filterwarnings
+import Adafruit_DHT
+import rrdtool
 
 filterwarnings('ignore', category = MySQLdb.Warning)
+
+config = None
 
 class DataProvider:
     @staticmethod
     def getProvider(name, config = None):
         if name == 'randomizer':
-            return RandomDataProvider()
+            return RandomDataProvider(config)
         if name == 'dht22':
-            return None
+            return DHT22DataProvider(config)
         return None
 
     def readData(self):
         raise Error('Implement in child classes.')
 
 class RandomDataProvider(DataProvider):
-    def __init__(self):
+    def __init__(self, config):
         random.seed()
 
     def readData(self):
         temp = random.random() * 40 - 10 # values from -10 to +30
         hum = random.random() * 100
         return {'temperature': temp, 'humidity': hum}
+
+class DHT22DataProvider(DataProvider):
+    def __init__(self, config):
+        self.pin = int(config.get('dataprovider','gpio'))
+
+    def readData(self):
+        humidity = None
+        temperature = None
+        while humidity is None or temperature is None:
+            humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, self.pin)
+        return {'temperature':temperature, 'humidity': humidity}
+
+def getRRDFilename(scopeName):
+    datadir = config.get('system','data_dir','data')
+    datadir = os.path.dirname(os.path.realpath(__file__)) + '/' + datadir
+    return datadir + '/' + scopeName + '.rrd'
+
+def createRRD(scopeName, measure_inverval,log):
+    rrdFile = getRRDFilename(scopeName)
+    if not os.path.isfile(rrdFile):
+        log.info('Creating RRD DB File: {0}'.format(rrdFile))
+        rrdtool.create( rrdFile,
+                  '--step', str( measure_interval ),
+                  '--no-overwrite',
+                  'DS:temperature:GAUGE:'+str(measure_interval*2)+':-273:5000',
+                  'DS:humidity:GAUGE:'+str(measure_interval*2)+':0:100',
+                  'RRA:AVERAGE:0.5:1:576',
+                  'RRA:AVERAGE:0.5:48:168',
+                  'RRA:AVERAGE:0.5:288:1825',
+                  'RRA:AVERAGE:0.5:8640:600'
+        )
+    return rrdFile
+
+def updateRRD(scopeName, data, log):
+    rrdFile = getRRDFilename(scopeName)
+    temp = str(data['temperature'])
+    hum = str(data['humidity'])
+    log.debug('Updating RRD {0} with Temp: {1}, Humidity: {2}'.format(rrdFile, temp, hum))
+    rrdtool.update(rrdFile,
+            '-t','temperature:humidity',
+            'N:{0}:{1}'.format(temp,hum)
+    )
 
 ### reading config file
 configFile = os.path.dirname(os.path.realpath(__file__)) + '/reader.ini'
@@ -119,11 +166,17 @@ except Exception as e:
     sys.exit(1)
 
 
+### create RRD file
+set_name = config.get('dataprovider','set_name')
+measure_interval = int(config.get('dataprovider','measure_interval',300))
+rrdFile = createRRD(set_name, measure_interval, log)
+
 ### Fetching and storing data
 try:
     data = dp.readData()
     log.debug('Read data: {0}'.format(str(data)))
-    set_name = config.get('dataprovider','set_name')
+    
+    ### store into db:
     cur = db.cursor()
     res = cur.execute(
         """
@@ -134,6 +187,9 @@ try:
     )
     db.commit()
     cur.close()
+
+    ### store into RRD:
+    updateRRD(set_name, data, log)
 except Exception as e:
     log.error('Data Read error: {0}'.format(str(e)))
     sys.exit(1)
