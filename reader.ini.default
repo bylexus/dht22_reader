@@ -1,0 +1,18 @@
+[system]
+log_level: DEBUG
+output_dir: output
+data_dir: data
+
+[dataprovider]
+provider: dht22
+set_name: wohnzimmer
+gpio: 4
+measure_interval: 300
+
+[graph]
+width: 800
+height: 400
+title_temperature: Temperature of $set_name
+title_humidity: Humidity of $set_name
+
+

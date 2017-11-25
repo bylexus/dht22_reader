@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 #####
 # Small helper script to read data from a DHT22 Temperature / Humidity sensor
-# and store them into a MySQL db.
+# and store them in a RRD database using python's rrdtool bindings
 #
 # This script needs:
-# - python-mysqldb
 # - python-rrdtool
 # - The Adafruit Python DHT library: https://github.com/adafruit/Adafruit_Python_DHT
 # - A configuration file (see config.ini.default)
@@ -22,13 +21,10 @@ import sys
 import ConfigParser
 import logging
 import time
-import MySQLdb
 import random
 from warnings import filterwarnings
 import Adafruit_DHT
 import rrdtool
-
-filterwarnings('ignore', category = MySQLdb.Warning)
 
 config = None
 
@@ -124,38 +120,6 @@ log.addHandler(ch)
 log.info('started')
 log.debug('Using config file {0}'.format(configFile))
 
-### setting up DB
-db_name = config.get('db','database')
-db_host = config.get('db','host')
-db_port = int(config.get('db','port'))
-db_user = config.get('db','user')
-db_pw = config.get('db','password')
-
-log.info('Connecting to {0}@{1}:{2} using user {3}'.format(db_name,db_host,db_port,db_user))
-
-db = None
-
-try:
-    db = MySQLdb.connect(host=db_host, port=db_port, db=db_name, user=db_user, passwd=db_pw)
-
-    # creating data table, if needed
-    cur = db.cursor()
-    cur.execute(
-            """
-    CREATE TABLE IF NOT EXISTS dht22_data (
-        id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        set_name VARCHAR(100),
-        measure_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        temperature FLOAT,
-        humidity FLOAT
-    )
-    """)
-    cur.close()
-except MySQLdb.Error, e:
-    log.error('Database error: {0}'.format(str(e)))
-    sys.exit(1)
-
-
 ### Setup Data Provider
 dp = None
 try:
@@ -175,18 +139,6 @@ rrdFile = createRRD(set_name, measure_interval, log)
 try:
     data = dp.readData()
     log.debug('Read data: {0}'.format(str(data)))
-    
-    ### store into db:
-    cur = db.cursor()
-    res = cur.execute(
-        """
-            INSERT INTO dht22_data (set_name,measure_time,temperature,humidity)
-            VALUES (%s, NOW(), %s, %s);
-        """,
-        (set_name,data['temperature'], data['humidity'])
-    )
-    db.commit()
-    cur.close()
 
     ### store into RRD:
     updateRRD(set_name, data, log)
@@ -194,4 +146,3 @@ except Exception as e:
     log.error('Data Read error: {0}'.format(str(e)))
     sys.exit(1)
 
-db.close()
