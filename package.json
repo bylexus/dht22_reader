@@ -1,0 +1,25 @@
+{
+  "name": "dht22_reader",
+  "version": "0.0.1",
+  "description": "Web UI for showing data collected by the DHT22 reader script",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bylexus/dht22_reader.git"
+  },
+  "author": "Alexander Schenkel <alex@alexi.ch>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bylexus/dht22_reader/issues"
+  },
+  "homepage": "https://github.com/bylexus/dht22_reader#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.12.1"
+  }
+}
