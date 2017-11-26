@@ -5,14 +5,19 @@ data_dir: data
 
 [dataprovider]
 provider: dht22
-set_name: wohnzimmer
+set_name: Waschraum
 gpio: 4
 measure_interval: 300
 
 [graph]
-width: 800
-height: 400
+width: 600
+height: 250
+lower_limit: 0
+enable_combined: 1
+enable_temp_graph: 0
+enable_humidity_graph: 0
 title_temperature: Temperature of $set_name
 title_humidity: Humidity of $set_name
+title: Temperature & Humidity of $set_name
 
 
