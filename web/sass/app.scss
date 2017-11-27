@@ -3,7 +3,8 @@ $small-devices: 700px;
     .navigation {
         position: fixed;
         top: 0; left: 0;
-        min-height: 100vh;
+        height: 100vh;
+        overflow: auto;
         background-color: #eee;
         border-left: 1px solid #aaa;
         width: 250px;
