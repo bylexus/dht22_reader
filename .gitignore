@@ -1,3 +1,6 @@
 /reader.ini
 /data/
 /output/
+/node_modules/
+/server.json
+

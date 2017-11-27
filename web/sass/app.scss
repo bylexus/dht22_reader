@@ -1,0 +1,33 @@
+$small-devices: 700px;
+.app-container {
+    .navigation {
+        position: fixed;
+        top: 0; left: 0;
+        min-height: 100vh;
+        background-color: #eee;
+        border-left: 1px solid #aaa;
+        width: 250px;
+        ul {
+            list-style-type: none;
+            padding-left: 0.5em;
+            label {
+                padding: 0.1em;
+                display: block;
+                &:hover {
+                    background-color: #84B2DF;
+                    color: white;
+                }
+            }
+        }
+        @media (max-width: $small-devices) {
+            width: 100px;
+        }
+    }
+
+    .content {
+        margin-left: 260px;
+        @media (max-width: $small-devices) {
+            margin-left: 110px;
+        }
+    }
+}
