@@ -74,10 +74,10 @@ def createRRD(scopeName, measure_inverval,log):
                   '--no-overwrite',
                   'DS:temperature:GAUGE:'+str(measure_interval*2)+':-273:5000',
                   'DS:humidity:GAUGE:'+str(measure_interval*2)+':0:100',
-                  'RRA:AVERAGE:0.5:1:576',
-                  'RRA:AVERAGE:0.5:48:168',
-                  'RRA:AVERAGE:0.5:288:1825',
-                  'RRA:AVERAGE:0.5:8640:600'
+                  'RRA:AVERAGE:0.5:1:576', # 48h of 5min data
+                  'RRA:AVERAGE:0.5:12:1440',# 1440 * 1 hour blocks = 60 days
+                  'RRA:AVERAGE:0.5:288:1825', # 1824 * 1 day = 5 years
+                  'RRA:AVERAGE:0.5:8640:600' # 600 * 1 Month = 50 years
         )
     return rrdFile
 
