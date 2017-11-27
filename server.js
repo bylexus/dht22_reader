@@ -5,7 +5,7 @@ const express = require('express');
 const app = express();
 
 function find(arr, comparator) {
-    for (let i = 0; i < arr.length; i++) {
+    for (var i = 0; i < arr.length; i++) {
         if (comparator(arr[i])) {
             return arr[i];
         }
@@ -29,8 +29,8 @@ function readRRDImages() {
             if (err) {
                 reject(err);
             } else {
-                let r = new RegExp('^(.*)_(combined|temperature|humidity)_(.*).png$');
-                let fileMatches = files
+                var r = new RegExp('^(.*)_(combined|temperature|humidity)_(.*).png$');
+                var fileMatches = files
                     .map(f => f.match(r))
                     .filter(match => match)
                     .map(match => ({
@@ -47,9 +47,9 @@ function readRRDImages() {
 
 function rrdTreeFromFileInfos() {
     return readRRDImages().then(fileInfos => {
-        let result = [];
+        var result = [];
         fileInfos.forEach(fInfo => {
-            let setEntry = find(result, item => item.setName === fInfo.setName);
+            var setEntry = find(result, item => item.setName === fInfo.setName);
             if (!setEntry) {
                 setEntry = {
                     setName: fInfo.setName,
@@ -58,13 +58,13 @@ function rrdTreeFromFileInfos() {
                 result.push(setEntry);
             }
 
-            let typeEntry = find(setEntry.types, item => item.type === fInfo.type);
+            var typeEntry = find(setEntry.types, item => item.type === fInfo.type);
             if (!typeEntry) {
                 typeEntry = { setName: fInfo.setName, type: fInfo.type, periods: [] };
                 setEntry.types.push(typeEntry);
             }
 
-            let periodEntry = find(typeEntry.periods, item => item.timePeriod === fInfo.timePeriod);
+            var periodEntry = find(typeEntry.periods, item => item.timePeriod === fInfo.timePeriod);
             if (!periodEntry) {
                 periodEntry = {
                     setName: fInfo.setName,
