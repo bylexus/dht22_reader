@@ -7,8 +7,11 @@ class App extends React.Component {
     constructor() {
         super();
 
+        this.toggleMenu = this.toggleMenu.bind(this);
+
         this.state = {
             loading: false,
+            menuOpen: false,
             graphs: [],
             checked: []
         };
@@ -74,16 +77,32 @@ class App extends React.Component {
         return 'rrd_images/' + periodInfo.image_file + '?' + new Date().getTime();
     }
 
+    toggleMenu(e) {
+        e.preventDefault();
+        this.setState({ menuOpen: !this.state.menuOpen });
+    }
+
     render() {
-        let { loading, graphs, checked } = this.state;
+        let { loading, graphs, checked, menuOpen } = this.state;
+        let navClasses = ['navigation', menuOpen ? 'open' : 'closed'].join(' ');
+        let iconClasses = ['icon', menuOpen ? 'open' : 'closed'].join(' ');
         return (
             <div className="app-container">
-                <div className="navigation">
-                    <h3>Graphs</h3>
+                <div className={navClasses}>
+                    <h3 className="desktop">Graphs</h3>
+                    <h3 className="mobile">
+                        <a href="#" onClick={this.toggleMenu}>
+                            <span className={iconClasses} />Temperature and Humidity
+                        </a>
+                        <span>&nbsp;</span>
+                        <Button bsSize="xsmall" bsStyle="info" onClick={this.forceUpdate.bind(this, () => {})}>
+                            reload
+                        </Button>
+                    </h3>
                     {loading ? <div>Load ...</div> : this.renderMenu(graphs)}
                 </div>
                 <div className="content">
-                    <h1>
+                    <h1 className="desktop">
                         Temperature and Humidity{' '}
                         <Button bsSize="xsmall" bsStyle="info" onClick={this.forceUpdate.bind(this, () => {})}>
                             reload
@@ -99,13 +118,12 @@ class App extends React.Component {
                             </div>
                         ))}
                     </div>
+                    <footer>
+                        <p>
+                            &copy; 2017 <a href="https://alexi.ch/">alexi.ch</a>
+                        </p>
+                    </footer>
                 </div>
-
-                <footer>
-                    <p>
-                        &copy; 2017 <a href="https://alexi.ch/">alexi.ch</a>
-                    </p>
-                </footer>
             </div>
         );
     }

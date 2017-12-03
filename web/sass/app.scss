@@ -1,13 +1,51 @@
+$fa-font-path: "~font-awesome/fonts";
+@import "~font-awesome/scss/font-awesome.scss";
+
 $small-devices: 700px;
+html, body {
+    font-size: 10.5pt;
+}
+
+.desktop {
+    display: block;
+}
+.mobile {
+    display: none;
+}
+@media (max-width: $small-devices) {
+    .desktop {
+        display: none;
+    }
+    .mobile {
+        display: block;
+    }
+}
+
 .app-container {
     .navigation {
         position: fixed;
         top: 0; left: 0;
         height: 100vh;
         overflow: auto;
-        background-color: #eee;
-        border-left: 1px solid #aaa;
+        background-color: rgba(230,230,230,0.95);
+        border-right: 1px solid #aaa;
         width: 250px;
+        transition: height 0.3s;
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        h3 {
+            font-size: 11pt;
+            margin-left: 0.3em;
+        }
+        .icon {
+            display: none;
+            transform: rotate(0deg);
+            transition: transform 0.3s;
+            @extend .fa;
+            @extend .fa-caret-right;
+        }
         ul {
             list-style-type: none;
             padding-left: 0.5em;
@@ -21,14 +59,40 @@ $small-devices: 700px;
             }
         }
         @media (max-width: $small-devices) {
-            width: 100px;
+            width: 100vw;
+            border-right: none;
+            border-bottom: 1px solid #aaa;
+
+            .icon {
+                display: inline-block;
+            }
+
+            &.closed {
+                height: 50px;
+            }
+            &.open {
+                height: 100vh;
+                .icon {
+                    transform: rotate(90deg);
+                }
+            }
+            & > ul {
+            }
         }
     }
 
     .content {
         margin-left: 260px;
+        padding: 1em;
+        h1 {
+            font-size: 13pt;
+        }
+        h2 {
+            font-size: 11pt;
+        }
         @media (max-width: $small-devices) {
-            margin-left: 110px;
+            margin-top: 50px;
+            margin-left: auto;
         }
     }
 }
