@@ -42,7 +42,7 @@ def getOutputDir():
 
 def createGraphs(scopeName):
     outdir = getOutputDir()
-    graphs = ['12h','24h','5d','7d','1m','6m','1y']
+    graphs = ['12 hours','24 hours','5 days','7 days','1 months','6 months','1 years']
     lower_limit = config.get('graph','lower_limit') if config.has_option('graph','lower_limit') else '0'
     enable_combined = toBool(config.get('graph','enable_combined')) if config.has_option('graph','enable_combined') else True
     enable_temp_graph = toBool(config.get('graph','enable_temp_graph')) if config.has_option('graph','enable_temp_graph') else True
@@ -50,7 +50,7 @@ def createGraphs(scopeName):
     for graph in graphs:
         if enable_combined:
             title = Template(config.get('graph','title','$set_name')).substitute(set_name = scopeName)
-            graph_file = outdir + '/' + scopeName + '_combined_' + graph + '.png'
+            graph_file = outdir + '/' + scopeName + '_combined_' + graph.replace(' ','_') + '.png'
 
             log.info('Creating graph: {0}: {1}'.format(graph,graph_file))
             rrdtool.graph(graph_file,

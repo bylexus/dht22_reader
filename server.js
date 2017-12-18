@@ -3,6 +3,7 @@ const fs = require('fs');
 const config = require(path.join(__dirname, 'server.json'));
 const express = require('express');
 const app = express();
+const moment = require('moment');
 
 function find(arr, comparator) {
     for (var i = 0; i < arr.length; i++) {
@@ -79,6 +80,35 @@ function rrdTreeFromFileInfos() {
     });
 }
 
+function sortRrdTreeByPeriod(rrdTree) {
+    rrdTree.forEach(setEntry => {
+        setEntry.types.forEach(typeEntry => {
+            typeEntry.periods.sort((a, b) => {
+                let aDateInfo = a.timePeriod.replace('_', '_').match(/([0-9]+)\s*(.*)/);
+                let bDateInfo = b.timePeriod.replace('_', '_').match(/([0-9]+)\s*(.*)/);
+                if (!aDateInfo || !bDateInfo) {
+                    return -1;
+                }
+                let aTime = moment()
+                    .subtract(Number(aDateInfo[1]), aDateInfo[2])
+                    .format('X');
+                let bTime = moment()
+                    .subtract(Number(bDateInfo[1]), bDateInfo[2])
+                    .format('X');
+
+                if (aTime < bTime) {
+                    return -1;
+                }
+                if (aTime === bTime) {
+                    return 0;
+                }
+                return 1;
+            });
+        });
+    });
+    return rrdTree;
+}
+
 // ---------------- Sever and route configs -------------------
 app.get('/', (req, res) => res.redirect(301, '/index.html'));
 app.use(express.static('web/static'));
@@ -86,6 +116,7 @@ app.use('/rrd_images', express.static('output'));
 
 app.get('/rrd_files', (req, res) => {
     rrdTreeFromFileInfos()
+        .then(sortRrdTreeByPeriod)
         .then(fileInfos => {
             res.json({ fileInfos });
         })

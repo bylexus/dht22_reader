@@ -94,5 +94,8 @@
             "no-undef": "error"
         },
         "globals": {}
+    },
+    "dependencies": {
+        "moment": "^2.19.3"
     }
 }
