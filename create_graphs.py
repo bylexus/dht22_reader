@@ -80,7 +80,7 @@ def createGraphs(scopeName):
 
         # separate graphs:
         if enable_temp_graph:
-            temp_graph = outdir + '/' + scopeName + '_temperature_' + graph + '.png'
+            temp_graph = outdir + '/' + scopeName + '_temperature_' + graph.replace(' ','_') + '.png'
 
             log.info('Creating graph: Temperature {0}: {1}'.format(graph,temp_graph))
             temp_title = Template(config.get('graph','title_temperature')).substitute(set_name = scopeName)
@@ -102,7 +102,7 @@ def createGraphs(scopeName):
             )
 
         if enable_humidity_graph:
-            hum_graph = outdir + '/' + scopeName + '_humidity_' + graph + '.png'
+            hum_graph = outdir + '/' + scopeName + '_humidity_' + graph.replace(' ','_') + '.png'
             log.info('Creating graph: Humidity {0}: {1}'.format(graph,hum_graph))
             hum_title = Template(config.get('graph','title_humidity')).substitute(set_name = scopeName)
             rrdtool.graph(hum_graph,

@@ -38,7 +38,7 @@ function readRRDImages() {
                         image_file: match[0],
                         setName: match[1],
                         type: match[2],
-                        timePeriod: match[3]
+                        timePeriod: match[3].replace('_',' ')
                     }));
                 resolve(fileMatches);
             }
@@ -84,15 +84,15 @@ function sortRrdTreeByPeriod(rrdTree) {
     rrdTree.forEach(setEntry => {
         setEntry.types.forEach(typeEntry => {
             typeEntry.periods.sort((a, b) => {
-                let aDateInfo = a.timePeriod.replace('_', '_').match(/([0-9]+)\s*(.*)/);
-                let bDateInfo = b.timePeriod.replace('_', '_').match(/([0-9]+)\s*(.*)/);
+                var aDateInfo = a.timePeriod.match(/([0-9]+)\s*(.*)/);
+                var bDateInfo = b.timePeriod.match(/([0-9]+)\s*(.*)/);
                 if (!aDateInfo || !bDateInfo) {
                     return -1;
                 }
-                let aTime = moment()
+                var aTime = moment()
                     .subtract(Number(aDateInfo[1]), aDateInfo[2])
                     .format('X');
-                let bTime = moment()
+                var bTime = moment()
                     .subtract(Number(bDateInfo[1]), bDateInfo[2])
                     .format('X');
 

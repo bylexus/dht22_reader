@@ -22,7 +22,7 @@ class App extends React.Component {
         this.loadData()
             .then(data => {
                 // find 1st 24h entry, select it
-                let firstSel = this.findPeriodEntry(data.fileInfos, '*', '*', '24h');
+                let firstSel = this.findPeriodEntry(data.fileInfos, '*', '*', '24 hours');
                 let checked = [];
                 if (firstSel) {
                     checked = [firstSel];
